@@ -1,12 +1,8 @@
-import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
+import 'package:flutter/material.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:connectivity/connectivity.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:mutual_app/helpers/api_helper.dart';
 import 'package:mutual_app/helpers/constants.dart';
 import 'package:mutual_app/components/loader_component.dart';
 import 'package:mutual_app/models/models.dart';
@@ -21,23 +17,12 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-//*****************************************************************************
-//************************** DEFINICION DE VARIABLES **************************
-//*****************************************************************************
+//------------------- Variables -----------------------
 
   bool _isRunning = false;
 
   String _email = '';
   String _password = '';
-
-  //String _email = 'GPRIETO';
-  //String _password = 'CELESTE';
-
-  //String _email = 'AVASILE';
-  //String _password = 'AVA123';
-
-  //String _email = 'CHIDALGO';
-  //String _password = 'CHI123';
 
   String _emailError = '';
   bool _emailShowError = false;
@@ -45,23 +30,11 @@ class _LoginScreenState extends State<LoginScreen> {
   String _passwordError = '';
   bool _passwordShowError = false;
 
-  String _platformVersion = 'Unknown',
-      _imeiNo = "",
-      _modelName = "",
-      _manufacturerName = "",
-      _deviceName = "",
-      _productName = "",
-      _cpuType = "",
-      _hardware = "";
-  var _apiLevel;
-
   bool _rememberme = true;
   bool _passwordShow = false;
   bool _showLoader = false;
 
-//*****************************************************************************
-//************************** INIT STATE ***************************************
-//*****************************************************************************
+//------------------- initState -----------------------
 
   @override
   void initState() {
@@ -70,14 +43,11 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {});
   }
 
-//*****************************************************************************
-//************************** PANTALLA *****************************************
-//*****************************************************************************
+//------------------- Pantalla -----------------------
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xff8c8c94),
       body: Stack(
         children: <Widget>[
           Container(
@@ -88,26 +58,45 @@ class _LoginScreenState extends State<LoginScreen> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Color(0xff242424),
-                    Color(0xff8c8c94),
+                    Colors.white,
+                    Colors.white,
                   ],
                 ),
               ),
               child: Column(
                 children: [
+                  SizedBox(
+                    height: 70,
+                  ),
                   Image.asset(
                     "assets/logo.png",
-                    height: 200,
+                    width: double.infinity,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        Constants.version,
-                        style:
-                            const TextStyle(fontSize: 20, color: Colors.white),
-                      ),
-                    ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      children: [
+                        Text(
+                          'MUTUAL DE MEDICOS Y DE PERSONAL JERARQUICO DEL HOSPITAL PRIVADO',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                              fontSize: 14,
+                              color: Color(0xff0404fc),
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    Constants.version,
+                    style:
+                        const TextStyle(fontSize: 14, color: Color(0xff0404fc)),
+                  ),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  Divider(
+                    color: Color(0xff0404fc),
                   ),
                 ],
               )),
@@ -116,6 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Center(
               child: SingleChildScrollView(
                 child: Card(
+                  color: Color(0xff1cd0e4),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20)),
                   elevation: 15,
@@ -228,7 +218,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   _showRememberme() {
     return CheckboxListTile(
-      title: const Text('Recordarme:'),
+      title: const Text(
+        'Recordarme:',
+        style: TextStyle(
+          color: Color(0xff0404fc),
+        ),
+      ),
       value: _rememberme,
       onChanged: (value) {
         setState(() {
@@ -261,7 +256,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
               style: ElevatedButton.styleFrom(
-                primary: const Color(0xFF781f1e),
+                primary: const Color(0xff0404fc),
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(5),

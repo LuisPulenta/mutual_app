@@ -1,5 +1,5 @@
 class Constants {
-  static String get apiUrl => 'http://190.111.249.225/RowingAppApi';
+  static String get apiUrl => 'http://keypress.serveftp.net:88/MutualApi';
 
-  static String get version => '1.0.20';
+  static String get version => '1.0.0';
 }
