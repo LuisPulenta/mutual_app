@@ -2,6 +2,7 @@ import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:mutual_app/models/models.dart';
 import 'package:mutual_app/screens/screens.dart';
+import 'package:mutual_app/widgets/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -14,164 +15,123 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-//*****************************************************************************
-//************************** DEFINICION DE VARIABLES **************************
-//*****************************************************************************
+//------------------- Variables -----------------------
 
-  String _codigo = '';
-  int? _nroConexion = 0;
+  Color azul = const Color(0xff0404fc);
+  Color celeste = const Color(0xff1cd0e4);
+  Color blanco = Colors.white;
 
-  String direccion = '';
-
-//*****************************************************************************
-//************************** INITSTATE *****************************************
-//*****************************************************************************
+//------------------- initState -----------------------
 
   @override
   void initState() {
     super.initState();
   }
 
-//*****************************************************************************
-//************************** PANTALLA *****************************************
-//*****************************************************************************
+//------------------- Pantalla -----------------------
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Rowing App'),
+        title: const Text('Mutual App'),
         centerTitle: true,
+        backgroundColor: azul,
       ),
       body: _getBody(),
-      drawer: _getMenu(),
     );
   }
 
+//------------------- _getBody -----------------------
   Widget _getBody() {
     return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 60),
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xff242424),
-              Color(0xff8c8c94),
-            ],
-          ),
-        ),
-        child: Column(
-          children: [
-            Image.asset(
-              "assets/logo.png",
-              height: 200,
-            ),
-            Text(
-              'Bienvenido/a ${widget.user.catCodigo}',
-              style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white),
-            ),
-          ],
-        ));
-  }
-
-  Widget _getMenu() {
-    return Drawer(
-      child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xff8c8c94),
-              Color(0xff8c8c94),
-            ],
-          ),
-        ),
-        child: ListView(
-          children: <Widget>[
-            DrawerHeader(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xff242424),
-                    Color(0xff8c8c94),
-                  ],
-                ),
-              ),
-              child: Column(
-                children: [
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  const Image(
-                    image: AssetImage('assets/logo.png'),
-                    width: 200,
-                  ),
-                  const SizedBox(
-                    height: 40,
-                  ),
-                ],
-              ),
-            ),
-            const Divider(
-              color: Colors.white,
-              height: 1,
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: ListTile(
-                    leading: const Icon(
-                      Icons.construction,
-                      color: Colors.white,
-                    ),
-                    tileColor: const Color(0xff8c8c94),
-                    title: const Text('Obras',
-                        style: TextStyle(fontSize: 15, color: Colors.white)),
-                    onTap: () async {
-                      String? result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LoginScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const Divider(
-              color: Colors.white,
-              height: 1,
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.logout,
-                color: Colors.white,
-              ),
-              tileColor: const Color(0xff8c8c94),
-              title: const Text('Cerrar Sesión',
-                  style: TextStyle(fontSize: 15, color: Colors.white)),
-              onTap: () {
-                _logOut();
-              },
-            ),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xffffffff),
+            Color.fromARGB(255, 113, 217, 244),
           ],
         ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          const Logo(),
+          Text(
+            //'Bienvenido/a ${widget.user.catCodigo}',
+            'Bienvenido/a',
+            style: TextStyle(
+                fontSize: 20, fontWeight: FontWeight.bold, color: azul),
+          ),
+          Text(
+            //'Bienvenido/a ${widget.user.catCodigo}',
+            '${widget.user.nombreTitular} ${widget.user.apellidoTitular}',
+            style: TextStyle(
+                fontSize: 20, fontWeight: FontWeight.bold, color: azul),
+          ),
+          Divider(
+            color: azul,
+          ),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MisDatosScreen(
+                    user: widget.user,
+                  ),
+                ),
+              );
+            },
+            child: BotonGordo(
+              icon: Icons.mood,
+              texto: 'Mis datos',
+              color1: azul,
+              color2: celeste,
+              onPress: () {},
+            ),
+          ),
+          BotonGordo(
+            icon: Icons.paid,
+            texto: 'Aportes',
+            color1: celeste,
+            color2: azul,
+            onPress: () {},
+          ),
+          BotonGordo(
+            icon: Icons.request_quote,
+            texto: 'Retenciones',
+            color1: azul,
+            color2: celeste,
+            onPress: () {},
+          ),
+          BotonGordo(
+            icon: Icons.local_atm,
+            texto: 'Mi Jubilación',
+            color1: celeste,
+            color2: azul,
+            onPress: () {},
+          ),
+          GestureDetector(
+            onTap: _logOut,
+            child: BotonGordo(
+              icon: Icons.exit_to_app,
+              texto: 'Cerrar sesión',
+              color1: azul,
+              color2: celeste,
+              onPress: () {},
+            ),
+          ),
+        ],
       ),
     );
   }
 
-//*****************************************************************************
-//************************** METODO LOGOUT ************************************
-//*****************************************************************************
+//------------------- _logOut -----------------------
 
   void _logOut() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

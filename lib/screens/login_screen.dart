@@ -7,6 +7,7 @@ import 'package:mutual_app/helpers/constants.dart';
 import 'package:mutual_app/components/loader_component.dart';
 import 'package:mutual_app/models/models.dart';
 import 'package:mutual_app/screens/screens.dart';
+import 'package:mutual_app/widgets/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -19,11 +20,13 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
 //------------------- Variables -----------------------
 
-  String _email = '';
+  //String _email = '';
+  String _email = '12670579';
   String _emailError = '';
   bool _emailShowError = false;
 
-  String _password = '';
+  //String _password = '';
+  String _password = '123456';
   String _passwordError = '';
   bool _passwordShowError = false;
 
@@ -53,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 children: [
                   _separacion(altoPantalla, 0.1),
-                  _logo(),
+                  const Logo(),
                   _titulo(),
                   _version(),
                   _separacion(altoPantalla, 0.05),
@@ -71,15 +74,6 @@ class _LoginScreenState extends State<LoginScreen> {
               : Container(),
         ],
       ),
-    );
-  }
-
-//------------------- _Logo -----------------------
-
-  Image _logo() {
-    return Image.asset(
-      "assets/logo.png",
-      width: double.infinity,
     );
   }
 
@@ -297,11 +291,11 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     Map<String, dynamic> request = {
-      'Email': _email,
-      'password': _password,
+      'Dni': _email,
+      'ClaveApp': _password,
     };
 
-    var url = Uri.parse('${Constants.apiUrl}/Api/Account/GetUserByEmail');
+    var url = Uri.parse('${Constants.apiUrl}/API/Clientes/GetUserByDocument');
     var response = await http.post(
       url,
       headers: {
@@ -324,7 +318,7 @@ class _LoginScreenState extends State<LoginScreen> {
     var decodedJson = jsonDecode(body);
     var user = Cliente.fromJson(decodedJson);
 
-    if (user.modulo!.toLowerCase() != _password.toLowerCase()) {
+    if (user.claveApp!.toLowerCase() != _password.toLowerCase()) {
       setState(() {
         _showLoader = false;
         _passwordShowError = true;
