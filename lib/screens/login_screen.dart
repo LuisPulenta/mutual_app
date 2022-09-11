@@ -19,129 +19,51 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
 //------------------- Variables -----------------------
 
-  bool _isRunning = false;
-
   String _email = '';
-  String _password = '';
-
   String _emailError = '';
   bool _emailShowError = false;
 
+  String _password = '';
   String _passwordError = '';
   bool _passwordShowError = false;
 
   bool _rememberme = true;
+
   bool _passwordShow = false;
+
   bool _showLoader = false;
 
-//------------------- initState -----------------------
-
-  @override
-  void initState() {
-    super.initState();
-    _isRunning = false;
-    setState(() {});
-  }
+  Color azul = const Color(0xff0404fc);
+  Color celeste = const Color(0xff1cd0e4);
+  Color blanco = Colors.white;
 
 //------------------- Pantalla -----------------------
 
   @override
   Widget build(BuildContext context) {
+    double altoPantalla = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: Stack(
         children: <Widget>[
           Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 0),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.white,
-                    Colors.white,
-                  ],
-                ),
-              ),
+              color: Colors.white,
               child: Column(
                 children: [
-                  SizedBox(
-                    height: 70,
-                  ),
-                  Image.asset(
-                    "assets/logo.png",
-                    width: double.infinity,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      children: [
-                        Text(
-                          'MUTUAL DE MEDICOS Y DE PERSONAL JERARQUICO DEL HOSPITAL PRIVADO',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                              fontSize: 14,
-                              color: Color(0xff0404fc),
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    Constants.version,
-                    style:
-                        const TextStyle(fontSize: 14, color: Color(0xff0404fc)),
-                  ),
-                  SizedBox(
-                    height: 30,
-                  ),
+                  _separacion(altoPantalla, 0.1),
+                  _logo(),
+                  _titulo(),
+                  _version(),
+                  _separacion(altoPantalla, 0.05),
                   Divider(
-                    color: Color(0xff0404fc),
+                    color: azul,
                   ),
                 ],
               )),
-          Transform.translate(
-            offset: const Offset(0, -60),
-            child: Center(
-              child: SingleChildScrollView(
-                child: Card(
-                  color: Color(0xff1cd0e4),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)),
-                  elevation: 15,
-                  margin: const EdgeInsets.only(
-                      left: 20, right: 20, top: 260, bottom: 20),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 35, vertical: 20),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        _showEmail(),
-                        _showPassword(),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        _showRememberme(),
-                        _showButtons(),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const <Widget>[
-                SizedBox(
-                  height: 40,
-                ),
-              ],
-            ),
-          ),
+          _card(),
+          _separacion(altoPantalla, 0.05),
           _showLoader
               ? const LoaderComponent(
                   text: 'Por favor espere...',
@@ -152,9 +74,87 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-//-----------------------------------------------------------------
-//--------------------- METODO SHOWEMAIL --------------------------
-//-----------------------------------------------------------------
+//------------------- _Logo -----------------------
+
+  Image _logo() {
+    return Image.asset(
+      "assets/logo.png",
+      width: double.infinity,
+    );
+  }
+
+//------------------- _Titulo -----------------------
+
+  Padding _titulo() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        children: [
+          Text(
+            'MUTUAL DE MEDICOS Y DE PERSONAL JERARQUICO DEL HOSPITAL PRIVADO',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontSize: 14, color: azul, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
+
+//------------------- _Version -----------------------
+
+  Text _version() {
+    return Text(
+      Constants.version,
+      style: TextStyle(fontSize: 14, color: azul),
+    );
+  }
+
+//------------------- _card -----------------------
+
+  Transform _card() {
+    return Transform.translate(
+      offset: const Offset(0, -60),
+      child: Center(
+        child: SingleChildScrollView(
+          child: Card(
+            color: celeste,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            elevation: 15,
+            margin: const EdgeInsets.only(
+                left: 20, right: 20, top: 260, bottom: 20),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  _showEmail(),
+                  _showPassword(),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  _showRememberme(),
+                  _showButtons(),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+//------------------- _separacion -----------------------
+
+  SizedBox _separacion(double altoPantalla, double porcentaje) {
+    return SizedBox(
+      height: altoPantalla * porcentaje,
+    );
+  }
+
+//--------------------- _showEmail --------------------------
 
   Widget _showEmail() {
     return Container(
@@ -177,9 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-//-----------------------------------------------------------------
-//--------------------- METODO SHOWPASSWORD -----------------------
-//-----------------------------------------------------------------
+//--------------------- _showPassword --------------------------
 
   Widget _showPassword() {
     return Container(
@@ -187,7 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
       child: TextField(
         obscureText: !_passwordShow,
         decoration: InputDecoration(
-            fillColor: Colors.white,
+            fillColor: blanco,
             filled: true,
             hintText: 'Contraseña...',
             labelText: 'Contraseña',
@@ -212,9 +210,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-//-----------------------------------------------------------------
-//--------------------- METODO SHOWREMEMBERME ---------------------
-//-----------------------------------------------------------------
+//--------------------- _showRememberme ---------------------
 
   _showRememberme() {
     return CheckboxListTile(
@@ -233,9 +229,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-//-----------------------------------------------------------------
-//--------------------- METODO SHOWBUTTONS ------------------------
-//-----------------------------------------------------------------
+//--------------------- _showButtons ---------------------
 
   Widget _showButtons() {
     return Container(
@@ -256,7 +250,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
               style: ElevatedButton.styleFrom(
-                primary: const Color(0xff0404fc),
+                primary: azul,
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(5),
@@ -270,9 +264,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-//*****************************************************************************
-//************************** METODO LOGIN *************************************
-//*****************************************************************************
+//--------------------- _login ---------------------
 
   void _login() async {
     FocusScope.of(context).unfocus(); //Oculta el teclado
@@ -357,9 +349,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 )));
   }
 
-//*****************************************************************************
-//************************** METODO VALIDATEFIELDS ****************************
-//*****************************************************************************
+//--------------------- validateFields ---------------------
 
   bool validateFields() {
     bool isValid = true;
