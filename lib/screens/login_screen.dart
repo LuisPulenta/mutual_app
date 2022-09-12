@@ -36,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _showLoader = false;
 
-  Color azul = const Color(0xff0404fc);
+  Color azul = const Color.fromARGB(255, 34, 34, 175);
   Color celeste = const Color(0xff1cd0e4);
   Color blanco = Colors.white;
 
