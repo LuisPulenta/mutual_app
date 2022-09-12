@@ -273,7 +273,7 @@ class _MisDatosScreenState extends State<MisDatosScreen>
         padding: const EdgeInsets.all(12.0),
         child: Column(
           children: [
-            _dato('Categoría', widget.user.categoria.toString()!, anchoPantalla,
+            _dato('Categoría', widget.user.categoria.toString(), anchoPantalla,
                 0),
             _separacion(altoPantalla, 0.01),
             _dato('Servicio Especialidad.', widget.user.servicioEspecialidad!,
