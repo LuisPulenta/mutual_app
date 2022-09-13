@@ -280,25 +280,45 @@ class _MisDatosScreenState extends State<MisDatosScreen>
         padding: const EdgeInsets.all(12.0),
         child: Column(
           children: [
-            _dato('Apellido Cónyuge', widget.user.apellidoConyuge!,
-                anchoPantalla, 0, 1),
+            _dato(
+                'Apellido Cónyuge',
+                widget.user.apellidoConyuge == null
+                    ? ''
+                    : widget.user.apellidoConyuge!,
+                anchoPantalla,
+                0,
+                1),
             _separacion(altoPantalla, 0.01),
-            _dato('Nombre Cónyuge', widget.user.nombreConyuge!, anchoPantalla,
-                0, 1),
+            _dato(
+                'Nombre Cónyuge',
+                widget.user.nombreConyuge == null
+                    ? ''
+                    : widget.user.nombreConyuge!,
+                anchoPantalla,
+                0,
+                1),
             _separacion(altoPantalla, 0.01),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _dato(
                     'Fecha Nacimiento',
-                    DateFormat('dd/MM/yyyy').format(
-                        DateTime.parse(widget.user.fechaNacimientoConyuge!)),
+                    widget.user.fechaNacimientoConyuge == null
+                        ? ''
+                        : DateFormat('dd/MM/yyyy').format(DateTime.parse(
+                            widget.user.fechaNacimientoConyuge!)),
                     anchoPantalla * 0.35,
                     1,
                     1),
                 _dato('DNI', widget.user.dniConyuge.toString(),
                     anchoPantalla * 0.26, 0, 1),
-                _dato('CUIL', widget.user.cuilConyuge!, anchoPantalla * 0.29, 1,
+                _dato(
+                    'CUIL',
+                    widget.user.cuilConyuge == null
+                        ? ''
+                        : widget.user.cuilConyuge!,
+                    anchoPantalla * 0.29,
+                    1,
                     1),
               ],
             ),
@@ -346,8 +366,10 @@ class _MisDatosScreenState extends State<MisDatosScreen>
               children: [
                 _dato(
                     'Fecha Alta',
-                    DateFormat('dd/MM/yyyy')
-                        .format(DateTime.parse(widget.user.fechaAlta!)),
+                    widget.user.fechaAlta == null
+                        ? ''
+                        : DateFormat('dd/MM/yyyy')
+                            .format(DateTime.parse(widget.user.fechaAlta!)),
                     anchoPantalla * 0.25,
                     1,
                     0),

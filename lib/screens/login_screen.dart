@@ -308,7 +308,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (response.statusCode >= 400) {
       setState(() {
         _passwordShowError = true;
-        _passwordError = 'Email o contraseña incorrectos';
+        _passwordError = 'Usuario o contraseña incorrectos';
         _showLoader = false;
       });
       return;
@@ -322,7 +322,7 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _showLoader = false;
         _passwordShowError = true;
-        _passwordError = 'Email o contraseña incorrectos';
+        _passwordError = 'Usuario o contraseña incorrectos';
       });
       return;
     }
