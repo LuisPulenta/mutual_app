@@ -17,8 +17,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
 //------------------- Variables -----------------------
 
-  Color azul = const Color.fromARGB(255, 34, 34, 175);
-  Color celeste = const Color(0xff1cd0e4);
+  Color azul = const Color.fromARGB(255, 26, 169, 247);
+  Color celeste = const Color.fromARGB(255, 143, 237, 202);
   Color blanco = Colors.white;
 
 //------------------- initState -----------------------
@@ -116,6 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
             color2: azul,
             onPress: () {},
           ),
+          Spacer(),
           GestureDetector(
             onTap: _logOut,
             child: BotonGordo(
@@ -138,8 +139,6 @@ class _HomeScreenState extends State<HomeScreen> {
     await prefs.setBool('isRemembered', false);
     await prefs.setString('userBody', '');
     await prefs.setString('date', '');
-
-    var connectivityResult = await Connectivity().checkConnectivity();
 
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => const LoginScreen()));

@@ -19,7 +19,6 @@ class _MyAppState extends State<MyApp> {
   bool _isLoading = true;
   bool _showLoginPage = true;
   late Cliente _user;
-  int _nroConexion = 0;
 
   @override
   void initState() {
