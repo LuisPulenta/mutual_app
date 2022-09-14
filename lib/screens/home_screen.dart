@@ -116,6 +116,13 @@ class _HomeScreenState extends State<HomeScreen> {
             color2: azul,
             onPress: () {},
           ),
+          BotonGordo(
+            icon: Icons.settings,
+            texto: 'Ajustes',
+            color1: azul,
+            color2: celeste,
+            onPress: () {},
+          ),
           Spacer(),
           GestureDetector(
             onTap: _logOut,

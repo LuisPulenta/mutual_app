@@ -831,7 +831,7 @@ class _MisDatosScreenState extends State<MisDatosScreen>
 
         isValid = false;
       } else {
-        _userEditar.barrio = dato.toUpperCase();
+        _userEditar.cp = dato as int;
       }
     }
 
