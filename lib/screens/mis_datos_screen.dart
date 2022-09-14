@@ -1,9 +1,15 @@
+import 'dart:convert';
+
 import 'package:adaptive_dialog/adaptive_dialog.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mutual_app/components/loader_component.dart';
+import 'package:mutual_app/helpers/api_helper.dart';
+import 'package:mutual_app/helpers/constants.dart';
 import 'package:mutual_app/models/models.dart';
 import 'package:flutter/gestures.dart';
+import 'package:http/http.dart' as http;
 
 class MisDatosScreen extends StatefulWidget {
   final Cliente user;
@@ -29,6 +35,11 @@ class _MisDatosScreenState extends State<MisDatosScreen>
 
   bool _editar = false;
   String _datoEditar = '';
+  String _datoEditarError = '';
+  bool _datoEditarShowError = false;
+  final TextEditingController _datoEditarController = TextEditingController();
+
+  late Cliente _userEditar;
 
 //------------------- initState -----------------------
 
@@ -36,6 +47,7 @@ class _MisDatosScreenState extends State<MisDatosScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _userEditar = widget.user;
   }
 
 //------------------- Pantalla -----------------------
@@ -185,15 +197,15 @@ class _MisDatosScreenState extends State<MisDatosScreen>
         padding: const EdgeInsets.all(12.0),
         child: Column(
           children: [
-            _dato('Apellido Titular', widget.user.apellidoTitular,
+            _dato('Apellido Titular', _userEditar.apellidoTitular,
                 anchoPantalla, 0, 0),
             _separacion(altoPantalla, 0.01),
-            _dato('Nombre Titular', widget.user.nombreTitular, anchoPantalla, 0,
+            _dato('Nombre Titular', _userEditar.nombreTitular, anchoPantalla, 0,
                 0),
             _separacion(altoPantalla, 0.01),
-            _dato('Apellido', widget.user.apellido, anchoPantalla, 0, 0),
+            _dato('Apellido', _userEditar.apellido, anchoPantalla, 0, 0),
             _separacion(altoPantalla, 0.01),
-            _dato('Nombre', widget.user.nombre, anchoPantalla, 0, 0),
+            _dato('Nombre', _userEditar.nombre, anchoPantalla, 0, 0),
             _separacion(altoPantalla, 0.01),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -201,17 +213,17 @@ class _MisDatosScreenState extends State<MisDatosScreen>
                 _dato(
                     'Fecha Nacimiento',
                     DateFormat('dd/MM/yyyy')
-                        .format(DateTime.parse(widget.user.fechaNacimiento!)),
+                        .format(DateTime.parse(_userEditar.fechaNacimiento!)),
                     anchoPantalla * 0.35,
                     1,
                     0),
                 GestureDetector(
                   child: _dato('Lugar de Nacimiento',
-                      widget.user.lugarNacimiento!, anchoPantalla * 0.57, 0, 1),
+                      _userEditar.lugarNacimiento!, anchoPantalla * 0.57, 0, 1),
                   onTap: () async {
                     if (_editar) {
                       await _editarCampo(
-                          'Lugar de Nacimiento', widget.user.lugarNacimiento!);
+                          'Lugar de Nacimiento', _userEditar.lugarNacimiento!);
                     }
                   },
                 ),
@@ -219,11 +231,11 @@ class _MisDatosScreenState extends State<MisDatosScreen>
             ),
             _separacion(altoPantalla, 0.01),
             GestureDetector(
-              child: _dato('Nacionalidad', widget.user.nacionalidad!,
+              child: _dato('Nacionalidad', _userEditar.nacionalidad!,
                   anchoPantalla, 0, 1),
               onTap: () async {
                 if (_editar) {
-                  await _editarCampo('Nacionalidad', widget.user.nacionalidad!);
+                  await _editarCampo('Nacionalidad', _userEditar.nacionalidad!);
                 }
               },
             ),
@@ -231,41 +243,103 @@ class _MisDatosScreenState extends State<MisDatosScreen>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _dato('Sexo', widget.user.sexo!, anchoPantalla * 0.15, 1, 0),
-                _dato('DNI', widget.user.dni.toString(), anchoPantalla * 0.20,
+                _dato('Sexo', _userEditar.sexo!, anchoPantalla * 0.15, 1, 0),
+                _dato('DNI', _userEditar.dni.toString(), anchoPantalla * 0.20,
                     1, 0),
-                _dato('CUIL', widget.user.cuil!, anchoPantalla * 0.45, 1, 1),
-                _dato('Estado Civil', widget.user.estadoCivil!,
+                GestureDetector(
+                  child: _dato(
+                      'CUIL', _userEditar.cuil!, anchoPantalla * 0.45, 1, 1),
+                  onTap: () async {
+                    if (_editar) {
+                      await _editarCampo('CUIL', _userEditar.cuil!);
+                    }
+                  },
+                ),
+                _dato('Estado Civil', _userEditar.estadoCivil!,
                     anchoPantalla * 0.15, 1, 0),
               ],
             ),
             _separacion(altoPantalla, 0.01),
-            _dato('Domicilio', widget.user.domicilio!, anchoPantalla, 0, 1),
+            GestureDetector(
+              child: _dato(
+                  'Domicilio', _userEditar.domicilio!, anchoPantalla, 0, 1),
+              onTap: () async {
+                if (_editar) {
+                  await _editarCampo('Domicilio', _userEditar.domicilio!);
+                }
+              },
+            ),
             _separacion(altoPantalla, 0.01),
-            _dato('Barrio', widget.user.barrio!, anchoPantalla, 0, 1),
+            GestureDetector(
+              child: _dato('Barrio', _userEditar.barrio!, anchoPantalla, 0, 1),
+              onTap: () async {
+                if (_editar) {
+                  await _editarCampo('Barrio', _userEditar.barrio!);
+                }
+              },
+            ),
             _separacion(altoPantalla, 0.01),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _dato('CP', widget.user.cp.toString(), anchoPantalla * 0.25, 1,
-                    1),
-                _dato('Localidad', widget.user.localidad!, anchoPantalla * 0.67,
-                    0, 1),
+                GestureDetector(
+                  child: _dato('CP', _userEditar.cp.toString(),
+                      anchoPantalla * 0.25, 1, 1),
+                  onTap: () async {
+                    if (_editar) {
+                      await _editarCampo('CP', _userEditar.cp.toString()!);
+                    }
+                  },
+                ),
+                GestureDetector(
+                  child: _dato('Localidad', _userEditar.localidad!,
+                      anchoPantalla * 0.67, 0, 1),
+                  onTap: () async {
+                    if (_editar) {
+                      await _editarCampo('Localidad', _userEditar.localidad!);
+                    }
+                  },
+                ),
               ],
             ),
             _separacion(altoPantalla, 0.01),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _dato('Teléfono', widget.user.telefono!, anchoPantalla * 0.46,
-                    1, 1),
-                _dato('Celular', widget.user.celular!, anchoPantalla * 0.46, 1,
-                    1),
+                GestureDetector(
+                  child: _dato('Teléfono', _userEditar.telefono!,
+                      anchoPantalla * 0.46, 1, 1),
+                  onTap: () async {
+                    if (_editar) {
+                      await _editarCampo('Teléfono', _userEditar.telefono!);
+                    }
+                  },
+                ),
+                GestureDetector(
+                  child: _dato('Celular', _userEditar.celular!,
+                      anchoPantalla * 0.46, 1, 1),
+                  onTap: () async {
+                    if (_editar) {
+                      await _editarCampo('Celular', _userEditar.celular!);
+                    }
+                  },
+                ),
               ],
             ),
             _separacion(altoPantalla, 0.01),
-            _dato('Correo', widget.user.email != null ? widget.user.email! : '',
-                anchoPantalla, 0, 1),
+            GestureDetector(
+              child: _dato(
+                  'Correo',
+                  _userEditar.email != null ? _userEditar.email! : '',
+                  anchoPantalla,
+                  0,
+                  1),
+              onTap: () async {
+                if (_editar) {
+                  await _editarCampo('Correo', _userEditar.email!);
+                }
+              },
+            ),
           ],
         ),
       ),
@@ -280,46 +354,85 @@ class _MisDatosScreenState extends State<MisDatosScreen>
         padding: const EdgeInsets.all(12.0),
         child: Column(
           children: [
-            _dato(
-                'Apellido Cónyuge',
-                widget.user.apellidoConyuge == null
-                    ? ''
-                    : widget.user.apellidoConyuge!,
-                anchoPantalla,
-                0,
-                1),
+            GestureDetector(
+              child: _dato(
+                  'Apellido Cónyuge',
+                  _userEditar.apellidoConyuge == null
+                      ? ''
+                      : _userEditar.apellidoConyuge!,
+                  anchoPantalla,
+                  0,
+                  1),
+              onTap: () async {
+                if (_editar) {
+                  await _editarCampo(
+                      'Apellido Cónyuge', _userEditar.apellidoConyuge!);
+                }
+              },
+            ),
             _separacion(altoPantalla, 0.01),
-            _dato(
-                'Nombre Cónyuge',
-                widget.user.nombreConyuge == null
-                    ? ''
-                    : widget.user.nombreConyuge!,
-                anchoPantalla,
-                0,
-                1),
+            GestureDetector(
+              child: _dato(
+                  'Nombre Cónyuge',
+                  _userEditar.nombreConyuge == null
+                      ? ''
+                      : _userEditar.nombreConyuge!,
+                  anchoPantalla,
+                  0,
+                  1),
+              onTap: () async {
+                if (_editar) {
+                  await _editarCampo(
+                      'Nombre Cónyuge', _userEditar.nombreConyuge!);
+                }
+              },
+            ),
             _separacion(altoPantalla, 0.01),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _dato(
-                    'Fecha Nacimiento',
-                    widget.user.fechaNacimientoConyuge == null
-                        ? ''
-                        : DateFormat('dd/MM/yyyy').format(DateTime.parse(
-                            widget.user.fechaNacimientoConyuge!)),
-                    anchoPantalla * 0.35,
-                    1,
-                    1),
-                _dato('DNI', widget.user.dniConyuge.toString(),
-                    anchoPantalla * 0.26, 0, 1),
-                _dato(
-                    'CUIL',
-                    widget.user.cuilConyuge == null
-                        ? ''
-                        : widget.user.cuilConyuge!,
-                    anchoPantalla * 0.29,
-                    1,
-                    1),
+                GestureDetector(
+                  child: _dato(
+                      'Fecha Nacimiento',
+                      _userEditar.fechaNacimientoConyuge == null
+                          ? ''
+                          : DateFormat('dd/MM/yyyy').format(DateTime.parse(
+                              _userEditar.fechaNacimientoConyuge!)),
+                      anchoPantalla * 0.35,
+                      1,
+                      1),
+                  onTap: () async {
+                    if (_editar) {
+                      await _editarCampo('Fecha Nacimiento',
+                          _userEditar.fechaNacimientoConyuge!);
+                    }
+                  },
+                ),
+                GestureDetector(
+                  child: _dato('DNI', _userEditar.dniConyuge.toString(),
+                      anchoPantalla * 0.26, 0, 1),
+                  onTap: () async {
+                    if (_editar) {
+                      await _editarCampo(
+                          'DNI', _userEditar.dniConyuge.toString()!);
+                    }
+                  },
+                ),
+                GestureDetector(
+                  child: _dato(
+                      'CUIL',
+                      _userEditar.cuilConyuge == null
+                          ? ''
+                          : _userEditar.cuilConyuge!,
+                      anchoPantalla * 0.29,
+                      1,
+                      1),
+                  onTap: () async {
+                    if (_editar) {
+                      await _editarCampo('CUIL', _userEditar.cuilConyuge!);
+                    }
+                  },
+                ),
               ],
             ),
             _separacion(altoPantalla, 0.01),
@@ -337,26 +450,34 @@ class _MisDatosScreenState extends State<MisDatosScreen>
         padding: const EdgeInsets.all(12.0),
         child: Column(
           children: [
-            _dato('Categoría', widget.user.categoria.toString(), anchoPantalla,
+            _dato('Categoría', _userEditar.categoria.toString(), anchoPantalla,
                 0, 0),
             _separacion(altoPantalla, 0.01),
-            _dato('Servicio Especialidad.', widget.user.servicioEspecialidad!,
-                anchoPantalla, 0, 1),
+            GestureDetector(
+              child: _dato('Servicio Especialidad',
+                  _userEditar.servicioEspecialidad!, anchoPantalla, 0, 1),
+              onTap: () async {
+                if (_editar) {
+                  await _editarCampo('Servicio Especialidad',
+                      _userEditar.servicioEspecialidad!);
+                }
+              },
+            ),
             _separacion(altoPantalla, 0.01),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _dato('Socio', widget.user.socio! ? 'SI' : 'NO',
+                _dato('Socio', _userEditar.socio! ? 'SI' : 'NO',
                     anchoPantalla * 0.15, 1, 0),
                 _dato(
                     'N° Socio',
-                    widget.user.nroSocio != null
-                        ? widget.user.nroSocio.toString()
+                    _userEditar.nroSocio != null
+                        ? _userEditar.nroSocio.toString()
                         : '',
                     anchoPantalla * 0.30,
                     0,
                     0),
-                _dato('N° Cuenta HP', widget.user.nroCuentaHp!,
+                _dato('N° Cuenta HP', _userEditar.nroCuentaHp!,
                     anchoPantalla * 0.47, 1, 0),
               ],
             ),
@@ -366,26 +487,26 @@ class _MisDatosScreenState extends State<MisDatosScreen>
               children: [
                 _dato(
                     'Fecha Alta',
-                    widget.user.fechaAlta == null
+                    _userEditar.fechaAlta == null
                         ? ''
                         : DateFormat('dd/MM/yyyy')
-                            .format(DateTime.parse(widget.user.fechaAlta!)),
+                            .format(DateTime.parse(_userEditar.fechaAlta!)),
                     anchoPantalla * 0.25,
                     1,
                     0),
                 _dato(
                     'Fecha Jubilación',
-                    widget.user.fechaJubilacion != null
+                    _userEditar.fechaJubilacion != null
                         ? DateFormat('dd/MM/yyyy').format(
-                            DateTime.parse(widget.user.fechaJubilacion!))
+                            DateTime.parse(_userEditar.fechaJubilacion!))
                         : '',
                     anchoPantalla * 0.30,
                     1,
                     0),
                 _dato(
                     'Tipo Jubilación',
-                    widget.user.tipoJubilacion != null
-                        ? widget.user.tipoJubilacion!
+                    _userEditar.tipoJubilacion != null
+                        ? _userEditar.tipoJubilacion!
                         : '',
                     anchoPantalla * 0.37,
                     1,
@@ -451,7 +572,10 @@ class _MisDatosScreenState extends State<MisDatosScreen>
               width: ancho1,
               decoration: BoxDecoration(
                 color: blanco,
-                border: Border.all(),
+                border: Border.all(
+                  color: Colors.black,
+                  width: 0,
+                ),
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(10),
                   bottomRight: Radius.circular(10),
@@ -500,7 +624,7 @@ class _MisDatosScreenState extends State<MisDatosScreen>
                       "ATENCION!!",
                       style: TextStyle(color: Colors.red, fontSize: 20),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 30,
                     ),
                     Text(
@@ -520,13 +644,16 @@ class _MisDatosScreenState extends State<MisDatosScreen>
                       const Text(""),
                       TextFormField(
                         initialValue: _datoEditar,
+                        onChanged: (value) {
+                          _datoEditar = value;
+                        },
                         decoration: InputDecoration(
                             fillColor: Colors.white,
                             filled: true,
                             hintText: titulo,
                             labelText: titulo,
-                            // errorText:
-                            //     _passwordShowError ? _passwordError : null,
+                            errorText:
+                                _datoEditarShowError ? _datoEditarError : null,
                             prefixIcon: const Icon(Icons.edit),
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10))),
@@ -553,23 +680,7 @@ class _MisDatosScreenState extends State<MisDatosScreen>
                         borderRadius: BorderRadius.circular(5),
                       ),
                     ),
-                    onPressed: () async {
-                      if (true) {
-                        setState(() {});
-                      } else {
-                        await showAlertDialog(
-                            context: context,
-                            title: 'Aviso',
-                            message: 'Soy un ShowAlert',
-                            actions: <AlertDialogAction>[
-                              const AlertDialogAction(
-                                  key: null, label: 'Aceptar'),
-                            ]);
-                        setState(() {});
-
-                        Navigator.pop(context, 'yes');
-                      }
-                    },
+                    onPressed: () => _save(titulo, _datoEditar),
                   ),
                   const SizedBox(
                     height: 10,
@@ -605,5 +716,451 @@ class _MisDatosScreenState extends State<MisDatosScreen>
             },
           );
         });
+  }
+
+//------------------- _save -----------------------
+
+  void _save(String titulo, String dato) {
+    FocusScope.of(context).unfocus(); //Oculta el teclado
+    if (!validateFields(titulo, dato)) {
+      return;
+    }
+    _saveRecord();
+  }
+
+//------------------- validateFields -----------------------
+
+  bool validateFields(String titulo, String dato) {
+    bool isValid = true;
+
+    //-------- Lugar de nacimiento --------
+    if (titulo == 'Lugar de Nacimiento') {
+      if (dato.length > 25) {
+        showAlertDialog(
+            context: context,
+            title: 'Error',
+            message: 'No debe superar los 25 caracteres',
+            actions: <AlertDialogAction>[
+              const AlertDialogAction(key: null, label: 'Aceptar'),
+            ]);
+
+        isValid = false;
+      } else {
+        _userEditar.lugarNacimiento = dato.toUpperCase();
+      }
+    }
+
+    //-------- Nacionalidad --------
+    if (titulo == 'Nacionalidad') {
+      if (dato.length > 20) {
+        showAlertDialog(
+            context: context,
+            title: 'Error',
+            message: 'No debe superar los 20 caracteres',
+            actions: <AlertDialogAction>[
+              const AlertDialogAction(key: null, label: 'Aceptar'),
+            ]);
+
+        isValid = false;
+      } else {
+        _userEditar.nacionalidad = dato.toUpperCase();
+      }
+    }
+
+    //-------- CUIL --------
+    if (titulo == 'CUIL') {
+      if (dato.length > 20) {
+        showAlertDialog(
+            context: context,
+            title: 'Error',
+            message: 'No debe superar los 20 caracteres',
+            actions: <AlertDialogAction>[
+              const AlertDialogAction(key: null, label: 'Aceptar'),
+            ]);
+
+        isValid = false;
+      } else {
+        _userEditar.cuil = dato.toUpperCase();
+      }
+    }
+
+    //-------- Domicilio --------
+    if (titulo == 'Domicilio') {
+      if (dato.length > 70) {
+        showAlertDialog(
+            context: context,
+            title: 'Error',
+            message: 'No debe superar los 70 caracteres',
+            actions: <AlertDialogAction>[
+              const AlertDialogAction(key: null, label: 'Aceptar'),
+            ]);
+
+        isValid = false;
+      } else {
+        _userEditar.domicilio = dato.toUpperCase();
+      }
+    }
+
+    //-------- Domicilio --------
+    if (titulo == 'Barrio') {
+      if (dato.length > 50) {
+        showAlertDialog(
+            context: context,
+            title: 'Error',
+            message: 'No debe superar los 50 caracteres',
+            actions: <AlertDialogAction>[
+              const AlertDialogAction(key: null, label: 'Aceptar'),
+            ]);
+
+        isValid = false;
+      } else {
+        _userEditar.barrio = dato.toUpperCase();
+      }
+    }
+
+    //-------- CP --------
+    if (titulo == 'CP') {
+      if (dato.length > 50) {
+        showAlertDialog(
+            context: context,
+            title: 'Error',
+            message: 'No debe superar los 50 caracteres',
+            actions: <AlertDialogAction>[
+              const AlertDialogAction(key: null, label: 'Aceptar'),
+            ]);
+
+        isValid = false;
+      } else {
+        _userEditar.barrio = dato.toUpperCase();
+      }
+    }
+
+    //-------- Localidad --------
+    if (titulo == 'Localidad') {
+      if (dato.length > 25) {
+        showAlertDialog(
+            context: context,
+            title: 'Error',
+            message: 'No debe superar los 25 caracteres',
+            actions: <AlertDialogAction>[
+              const AlertDialogAction(key: null, label: 'Aceptar'),
+            ]);
+
+        isValid = false;
+      } else {
+        _userEditar.localidad = dato.toUpperCase();
+      }
+    }
+
+    //-------- Teléfono --------
+    if (titulo == 'Teléfono') {
+      if (dato.length > 20) {
+        showAlertDialog(
+            context: context,
+            title: 'Error',
+            message: 'No debe superar los 20 caracteres',
+            actions: <AlertDialogAction>[
+              const AlertDialogAction(key: null, label: 'Aceptar'),
+            ]);
+
+        isValid = false;
+      } else {
+        _userEditar.telefono = dato.toUpperCase();
+      }
+    }
+
+    //-------- Celular --------
+    if (titulo == 'Celular') {
+      if (dato.length > 20) {
+        showAlertDialog(
+            context: context,
+            title: 'Error',
+            message: 'No debe superar los 20 caracteres',
+            actions: <AlertDialogAction>[
+              const AlertDialogAction(key: null, label: 'Aceptar'),
+            ]);
+
+        isValid = false;
+      } else {
+        _userEditar.celular = dato.toUpperCase();
+      }
+    }
+
+    //-------- Correo --------
+    if (titulo == 'Correo') {
+      if (dato.length > 50) {
+        showAlertDialog(
+            context: context,
+            title: 'Error',
+            message: 'No debe superar los 50 caracteres',
+            actions: <AlertDialogAction>[
+              const AlertDialogAction(key: null, label: 'Aceptar'),
+            ]);
+
+        isValid = false;
+      } else {
+        _userEditar.email = dato.toUpperCase();
+      }
+    }
+
+    //-------- Apellido Cónyuge --------
+    if (titulo == 'Apellido Cónyuge') {
+      if (dato.length > 25) {
+        showAlertDialog(
+            context: context,
+            title: 'Error',
+            message: 'No debe superar los 25 caracteres',
+            actions: <AlertDialogAction>[
+              const AlertDialogAction(key: null, label: 'Aceptar'),
+            ]);
+
+        isValid = false;
+      } else {
+        _userEditar.apellidoConyuge = dato.toUpperCase();
+      }
+    }
+
+    //-------- Nombre Cónyuge --------
+    if (titulo == 'Nombre Cónyuge') {
+      if (dato.length > 30) {
+        showAlertDialog(
+            context: context,
+            title: 'Error',
+            message: 'No debe superar los 30 caracteres',
+            actions: <AlertDialogAction>[
+              const AlertDialogAction(key: null, label: 'Aceptar'),
+            ]);
+
+        isValid = false;
+      } else {
+        _userEditar.nombreConyuge = dato.toUpperCase();
+      }
+    }
+
+    //-------- Fecha Nacimiento --------
+    if (titulo == 'Fecha Nacimiento') {
+      if (dato.length > 30) {
+        showAlertDialog(
+            context: context,
+            title: 'Error',
+            message: 'No debe superar los 30 caracteres',
+            actions: <AlertDialogAction>[
+              const AlertDialogAction(key: null, label: 'Aceptar'),
+            ]);
+
+        isValid = false;
+      } else {
+        _userEditar.fechaNacimientoConyuge = dato.toUpperCase();
+      }
+    }
+
+    //-------- DNI --------
+    if (titulo == 'DNI') {
+      if (dato.length > 30) {
+        showAlertDialog(
+            context: context,
+            title: 'Error',
+            message: 'No debe superar los 30 caracteres',
+            actions: <AlertDialogAction>[
+              const AlertDialogAction(key: null, label: 'Aceptar'),
+            ]);
+
+        isValid = false;
+      } else {
+        _userEditar.dniConyuge = dato as int;
+      }
+    }
+
+    //-------- CUIL --------
+    if (titulo == 'CUIL') {
+      if (dato.length > 20) {
+        showAlertDialog(
+            context: context,
+            title: 'Error',
+            message: 'No debe superar los 20 caracteres',
+            actions: <AlertDialogAction>[
+              const AlertDialogAction(key: null, label: 'Aceptar'),
+            ]);
+
+        isValid = false;
+      } else {
+        _userEditar.cuilConyuge = dato.toUpperCase();
+      }
+    }
+
+    //-------- Servicio Especialidad --------
+    if (titulo == 'Servicio Especialidad') {
+      if (dato.length > 30) {
+        showAlertDialog(
+            context: context,
+            title: 'Error',
+            message: 'No debe superar los 30 caracteres',
+            actions: <AlertDialogAction>[
+              const AlertDialogAction(key: null, label: 'Aceptar'),
+            ]);
+
+        isValid = false;
+      } else {
+        _userEditar.servicioEspecialidad = dato.toUpperCase();
+      }
+    }
+
+    setState(() {});
+
+    return isValid;
+  }
+
+//------------------- _saveRecord -----------------------
+
+  _saveRecord() async {
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _showLoader = true;
+    });
+
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      setState(() {
+        _showLoader = false;
+      });
+      await showAlertDialog(
+          context: context,
+          title: 'Error',
+          message: 'Verifica que estés conectado a Internet',
+          actions: <AlertDialogAction>[
+            const AlertDialogAction(key: null, label: 'Aceptar'),
+          ]);
+      return;
+    }
+
+    Map<String, dynamic> request = {
+      'Id': _userEditar.id,
+      'ApellidoTitular': _userEditar.apellidoTitular,
+      'NombreTitular': _userEditar.nombreTitular,
+      'Apellido': _userEditar.apellido,
+      'Nombre': _userEditar.nombre,
+      'Dni': _userEditar.dni,
+      'Cuil': _userEditar.cuil,
+      'Sexo': _userEditar.sexo,
+      'FechaNacimiento': _userEditar.fechaNacimiento,
+      'FechaFallecimiento': _userEditar.fechaFallecimiento,
+      'EstadoCivil': _userEditar.estadoCivil,
+      'LugarNacimiento': _userEditar.lugarNacimiento,
+      'Nacionalidad': _userEditar.nacionalidad,
+      'Domicilio': _userEditar.domicilio,
+      'Barrio': _userEditar.barrio,
+      'Localidad': _userEditar.localidad,
+      'Cp': _userEditar.cp,
+      'Telefono': _userEditar.telefono,
+      'Celular': _userEditar.celular,
+      'Email': _userEditar.email,
+      'ApellidoConyuge': _userEditar.apellidoConyuge,
+      'NombreConyuge': _userEditar.nombreConyuge,
+      'DniConyuge': _userEditar.dniConyuge,
+      'CuilConyuge': _userEditar.cuilConyuge,
+      'FechaNacimientoConyuge': _userEditar.fechaNacimientoConyuge,
+      'FechaFallecimientoConyuge': _userEditar.fechaFallecimientoConyuge,
+      'Categoria': _userEditar.categoria,
+      'Socio': _userEditar.socio,
+      'FechaCarga': _userEditar.fechaCarga,
+      'FechaAlta': _userEditar.fechaAlta,
+      'FechaBaja': _userEditar.fechaBaja,
+      'MotivoBaja': _userEditar.motivoBaja,
+      'NroSocio': _userEditar.nroSocio,
+      'NroCuentaHp': _userEditar.nroCuentaHp,
+      'TipoJubilacion': _userEditar.tipoJubilacion,
+      'FechaJubilacion': _userEditar.fechaJubilacion,
+      'ServicioEspecialidad': _userEditar.servicioEspecialidad,
+      'AfSeguroTit': _userEditar.afSeguroTit,
+      'AfSeguroCony': _userEditar.afSeguroCony,
+      'TrabHp': _userEditar.trabHp,
+      'TrabFuera': _userEditar.trabFuera,
+      'LugarTrab': _userEditar.lugarTrab,
+      'SegEnf': _userEditar.segEnf,
+      'SegAcc': _userEditar.segAcc,
+      'Beneficio1': _userEditar.beneficio1,
+      'Supervivencia': _userEditar.supervivencia,
+      'FecPagoSepTitular': _userEditar.fecPagoSepTitular,
+      'EgresoPagoSepTitular': _userEditar.egresoPagoSepTitular,
+      'MontoPagoSepTitular': _userEditar.montoPagoSepTitular,
+      'FecPagoSepConyuge': _userEditar.fecPagoSepConyuge,
+      'EgresoPagoSepConyuge': _userEditar.egresoPagoSepConyuge,
+      'MontoPagoSepConyuge': _userEditar.montoPagoSepConyuge,
+      'FecPagoSegEnf': _userEditar.fecPagoSegEnf,
+      'EgresoPagoSegEnf': _userEditar.egresoPagoSegEnf,
+      'MontoPagoSegEnf': _userEditar.montoPagoSegEnf,
+      'PlanSegEnf': _userEditar.planSegEnf,
+      'ObsSegEnfAcc': _userEditar.obsSegEnfAcc,
+      'ClaveApp': _userEditar.claveApp,
+    };
+
+    Response response = await ApiHelper.put(
+        '/api/Clientes/', _userEditar.id.toString(), request);
+
+    setState(() {
+      _showLoader = false;
+    });
+
+    if (!response.isSuccess) {
+      await showAlertDialog(
+          context: context,
+          title: 'Error',
+          message: response.message,
+          actions: <AlertDialogAction>[
+            const AlertDialogAction(key: null, label: 'Aceptar'),
+          ]);
+      return;
+    } else {
+      // await showAlertDialog(
+      //     context: context,
+      //     title: 'Aviso',
+      //     message: 'Guardado con éxito!',
+      //     actions: <AlertDialogAction>[
+      //       const AlertDialogAction(key: null, label: 'Aceptar'),
+      //     ]);
+      Navigator.pop(context, 'yes');
+      //_cargarUsuario();
+    }
+  }
+  //--------------------- _cargarUsuario ---------------------
+
+  void _cargarUsuario() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      setState(() {
+        _showLoader = false;
+      });
+      await showAlertDialog(
+          context: context,
+          title: 'Error',
+          message: 'Verifica que estes conectado a internet.',
+          actions: <AlertDialogAction>[
+            const AlertDialogAction(key: null, label: 'Aceptar'),
+          ]);
+      return;
+    }
+
+    Map<String, dynamic> request = {
+      'Dni': _userEditar.dni,
+      'ClaveApp': _userEditar.claveApp,
+    };
+
+    var url = Uri.parse('${Constants.apiUrl}/API/Clientes/GetUserByDocument');
+    var response = await http.post(
+      url,
+      headers: {
+        'content-type': 'application/json',
+        'accept': 'application/json',
+      },
+      body: jsonEncode(request),
+    );
+
+    var body = response.body;
+    var decodedJson = jsonDecode(body);
+    var user = Cliente.fromJson(decodedJson);
+
+    _userEditar = user;
+    setState(() {});
   }
 }
